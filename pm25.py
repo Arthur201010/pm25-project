@@ -78,17 +78,32 @@ def write_sql():
         size = cursor.executemany(sqlstr, values)
         conn.commit()
         print(f"寫入{size}筆資料成功")
+        return size
     except Exception as e:
         print(e)
+    return 0
+
+
+def write_to_mysql():
+    try:
+        open_db()
+        size = write_sql()
+        print("寫入大成功!!!!!!")
+        return {"結果": "success", "寫入筆數": size}
+    except Exception as e:
+        print(e)
+        return {"結果": "failure", "message": str(e)}
+    finally:
+        close_db()
 
 
 def get_from_mysql():  # 8/27 2:18:00  2:45:00
     try:
         open_db()
-        sqlstr = "select max(datacreationdate) from pm25"
-        cursor.execute(sqlstr)
-        max_data = cursor.fetchone()
-        print("最近時間:", max_data)
+        # sqlstr = "select max(datacreationdate) from pm25"
+        # cursor.execute(sqlstr)
+        # max_data = cursor.fetchone()
+        # print("最近時間:", max_data)
 
         sqlstr = (
             "select site,county,pm25,datacreationdate,"
@@ -109,8 +124,9 @@ def get_from_mysql():  # 8/27 2:18:00  2:45:00
     return None
 
 
-# print(get_from_mysql())
-# open_db()
-# write_sql()
-# close_db()
-# print(get_opendata())
+if __name__ == "__main__":
+    # print(get_from_mysql())
+    # 寫入資瞭庫
+    write_to_mysql()
+
+    # print(get_opendata())

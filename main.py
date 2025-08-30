@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from datetime import datetime
-
-from pm25 import get_from_mysql
+from pm25 import get_from_mysql, write_to_mysql
+import json
 
 books = {
     1: {
@@ -22,6 +22,13 @@ books = {
 }  # 8/22 2:10:00
 
 app = Flask(__name__)
+
+
+@app.route("/update-db")
+def update_db():
+    result = write_to_mysql()
+
+    return json.dumps(result, ensure_ascii=False)
 
 
 @app.route("/pm25")
