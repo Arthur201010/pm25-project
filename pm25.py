@@ -84,17 +84,35 @@ def write_sql():
     return 0
 
 
+# 8/29 0:50:00
 def write_to_mysql():
     try:
         open_db()
         size = write_sql()
-        print("寫入大成功!!!!!!")
+        print("回傳結果")
         return {"結果": "success", "寫入筆數": size}
     except Exception as e:
         print(e)
         return {"結果": "failure", "message": str(e)}
     finally:
         close_db()
+
+
+def get_avg_pm25_mysql():  # 8/29 1:38:00
+    try:
+        open_db()
+        sqlstr = """
+        select county, round(avg(pm25),2) from pm25 group by county;
+        """
+        cursor.execute(sqlstr)
+        datas = cursor.fetchall()
+
+        return datas
+    except Exception as e:
+        print("雲端資料庫擷取失敗", e)
+    finally:
+        close_db()
+    return None
 
 
 def get_from_mysql():  # 8/27 2:18:00  2:45:00
@@ -128,5 +146,6 @@ if __name__ == "__main__":
     # print(get_from_mysql())
     # 寫入資瞭庫
     write_to_mysql()
+    print(get_avg_pm25_mysql())
 
     # print(get_opendata())

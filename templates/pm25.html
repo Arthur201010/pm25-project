@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
         body {
             text-align: center;
@@ -93,6 +95,10 @@
                 width: 100%;
             }
         }
+
+        #main {
+            margin: 0 auto;
+        }
     </style>
 </head>
 
@@ -101,6 +107,7 @@
     <a href="/update-db">
         <h3>更新資料庫</h3>
     </a>
+    <div id="main" style="width: 800px;height:600px;"></div>
     <div id="tableContainer">
         <table border="1">
             <thead>
@@ -121,6 +128,55 @@
             </tbody>
         </table>
     </div>
+    <!-- 8/29 1:00:00 -->
+    <script type="text/javascript">
+
+        // let mainEl = document.querySelector("#main");
+        // console.log(mainEl);
+
+        // let mainEl2 = $("#main");
+        // console.log(mainEl);
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        $.ajax(
+            {
+                url: "avg-pm25",
+                type: "GET",
+                dataType: "json",
+                success: (result) => {
+                    console.log(result)
+                    // 指定图表的配置项和数据
+                    var option = {
+                        title: {
+                            text: '縣市PM2.5平均值'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: ['pm2.5']
+                        },
+                        xAxis: {
+                            data: result["county"]
+                        },
+                        yAxis: {},
+                        series: [
+                            {
+                                name: 'pm2.5',
+                                type: 'bar',
+                                data: result["pm25"]
+                            }
+                        ]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                },
+            }
+        );
+
+
+    </script>
 </body>
 
 </html>
