@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response
 from datetime import datetime
-from pm25 import get_from_mysql, write_to_mysql, get_avg_pm25_mysql
+from pm25 import get_from_mysql, write_to_mysql, get_avg_pm25_mysql, get_pm25_by_county
 import json
 
 books = {
@@ -22,6 +22,38 @@ books = {
 }  # 8/22 2:10:00
 
 app = Flask(__name__)
+
+
+@app.route("/county-pm25/<county>")
+def get_county_pm25(county):  # 9/3 0:40:00
+    result = get_pm25_by_county(county)
+
+    if len(result) == 0:
+        return Response(
+            json.dumps(
+                {"result": "取得資料失敗", "message": f"無此({county})縣市資料"},
+                ensure_ascii=False,
+            )
+        )
+    site = [r[0] for r in result]
+    pm25 = [float(r[1]) for r in result]
+    count = len(site)
+    datetime = result[0][2].strftime("%Y-%m-%d %H:%M:%S")
+    print(datetime)
+
+    return Response(
+        json.dumps(
+            {
+                "county": county,
+                "site": site,
+                "pm25": pm25,
+                "count": count,
+                "datetime": datetime,
+            },
+            ensure_ascii=False,
+        ),
+        mimetype="application/json",
+    )
 
 
 @app.route("/avg-pm25")

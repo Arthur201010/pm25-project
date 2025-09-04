@@ -142,10 +142,32 @@ def get_from_mysql():  # 8/27 2:18:00  2:45:00
     return None
 
 
+def get_pm25_by_county(county):
+    try:
+        open_db()
+        sqlstr = """
+        select site,pm25,datacreationdate from pm25
+        where county=%s and 
+        datacreationdate=(select max(datacreationdate) from pm25);
+        """
+        cursor.execute(sqlstr, (county,))
+        # cursor.execute(sqlstr, (max_data,))
+        datas = cursor.fetchall()
+        # 去掉 id 當使用 (select * from pm25)時
+        # datas = [data[1:0] for data in datas]
+
+        return datas
+    except Exception as e:
+        print("雲端資料庫擷取失敗", e)
+    finally:
+        close_db()
+    return None
+
+
 if __name__ == "__main__":
     # print(get_from_mysql())
     # 寫入資瞭庫
-    write_to_mysql()
-    print(get_avg_pm25_mysql())
-
+    # write_to_mysql()
+    # print(get_avg_pm25_mysql())
+    print(get_pm25_by_county("臺中市"))
     # print(get_opendata())
