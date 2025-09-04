@@ -96,7 +96,8 @@
             }
         }
 
-        #main {
+        #main,
+        #county {
             margin: 0 auto;
         }
     </style>
@@ -107,7 +108,19 @@
     <a href="/update-db">
         <h3>更新資料庫</h3>
     </a>
-    <div id="main" style="width: 800px;height:600px;"></div>
+    <div id="main" style="width: 800px;height:400px;"></div>
+    <div id="county" style="width: 800px;height:400px;" hidden></div>
+
+    <div style="margin: 12px;">
+        <label for="countySelect">選擇縣市</label>
+        <select name="countySelect" id="countySelect">
+            <option value="新北市">新北市</option>
+            <option value="臺北市">臺北市</option>
+            <option value="桃園市">桃園市</option>
+        </select>
+        <button id="loadCounty" onclick="drawCountyChart()">確定</button>
+    </div>
+
     <div id="tableContainer">
         <table border="1">
             <thead>
@@ -138,43 +151,63 @@
         // console.log(mainEl);
 
         // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('main'));
+        const chart1 = echarts.init(document.getElementById('main'));
+        const chart2 = echarts.init(document.getElementById('county'));
+        const countyEl = document.getElementById('county');
+        const countySelectEl = document.querySelector("#countySelect");
+
+        console.log(countySelectEl)
         // 8/29 2:40:00 git push
-        $.ajax(
-            {
-                url: "avg-pm25",
-                type: "GET",
-                dataType: "json",
-                success: (result) => {
-                    console.log(result)
-                    // 指定图表的配置项和数据
-                    var option = {
-                        title: {
-                            text: '縣市PM2.5平均值'
-                        },
-                        tooltip: {},
-                        legend: {
-                            data: ['pm2.5']
-                        },
-                        xAxis: {
-                            data: result["county"]
-                        },
-                        yAxis: {},
-                        series: [
-                            {
-                                name: 'pm2.5',
-                                type: 'bar',
-                                data: result["pm25"]
-                            }
-                        ]
-                    };
 
-                    // 使用刚指定的配置项和数据显示图表。
-                    myChart.setOption(option);
-                },
-            }
-        );
+        drawChart(chart1, "/avg-pm25", "各縣市PM2.5平均值", "county", "pm25")
 
+        function drawCountyChart() { // 9月3 2:00:00
+            let county = countySelectEl.value;
+            countyEl.hidden = false;
+            console.log(county);
+            drawChart(chart2, `/county-pm25/${county}`, `${county}PM2.5`, "site", "pm25", "orange")
+        }
+
+        function drawChart(chart, url, title, xKey, yKey, color = "blue") {
+
+            $.ajax(
+                {
+                    url: url,
+                    type: "GET",
+                    dataType: "json",
+                    success: (result) => {
+                        console.log(result)
+                        // 指定图表的配置项和数据
+                        var option = {
+                            title: {
+                                text: title
+                            },
+                            tooltip: {},
+                            legend: {
+                                data: ['pm2.5']
+                            },
+                            xAxis: {
+                                data: result[xKey]
+                            },
+                            yAxis: {},
+                            series: [
+                                {
+                                    itemStyle: {
+                                        color: color
+                                    },
+                                    name: 'pm2.5',
+                                    type: 'bar',
+                                    data: result[yKey]
+                                }
+                            ]
+                        };
+
+                        // 使用刚指定的配置项和数据显示图表。
+                        chart.setOption(option);
+                    },
+                }
+            );
+        }
 
     </script>
 </body>
