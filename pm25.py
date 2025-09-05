@@ -83,27 +83,30 @@ def write_sql():
         print(e)
     return 0
 
-def write_data_to_mysql():
+
+# 8/29 0:50:00
+def write_to_mysql():
     try:
         open_db()
-        size=write_sql()
-
-        return{"結果":"success","筆數":size}
+        size = write_sql()
+        print("回傳結果")
+        return {"結果": "success", "寫入筆數": size}
     except Exception as e:
         print(e)
-        return {"結果":"failure","message":str(e)}
+        return {"結果": "failure", "message": str(e)}
     finally:
-        close_db
+        close_db()
 
-def get_avg_from_mysql():  # 8/27 2:18:00  2:45:00
+
+def get_avg_pm25_mysql():  # 8/29 1:38:00
     try:
         open_db()
-        sqlstr="""
-        select county,round(avg(pm25),2) from pm25 group by county;
+        sqlstr = """
+        select county, round(avg(pm25),2) from pm25 group by county;
         """
         cursor.execute(sqlstr)
-        datas=cursor.fetchall()
-    
+        datas = cursor.fetchall()
+
         return datas
     except Exception as e:
         print("雲端資料庫擷取失敗", e)
@@ -115,10 +118,10 @@ def get_avg_from_mysql():  # 8/27 2:18:00  2:45:00
 def get_from_mysql():  # 8/27 2:18:00  2:45:00
     try:
         open_db()
-        sqlstr = "select max(datacreationdate) from pm25"
-        cursor.execute(sqlstr)
-        max_data = cursor.fetchone()
-        print("最近時間:", max_data)
+        # sqlstr = "select max(datacreationdate) from pm25"
+        # cursor.execute(sqlstr)
+        # max_data = cursor.fetchone()
+        # print("最近時間:", max_data)
 
         sqlstr = (
             "select site,county,pm25,datacreationdate,"
@@ -131,6 +134,34 @@ def get_from_mysql():  # 8/27 2:18:00  2:45:00
         # 去掉 id 當使用 (select * from pm25)時
         # datas = [data[1:0] for data in datas]
 
+        # 取得不重複縣市名稱  9/3 2:20:00
+        sqlstr = "select distinct county from pm25;"
+        cursor.execute(sqlstr)
+        # countys = cursor.fetchall()
+        countys = [r[0] for r in cursor.fetchall()]
+
+        return datas, countys
+    except Exception as e:
+        print("雲端資料庫擷取失敗", e)
+    finally:
+        close_db()
+    return None
+
+
+def get_pm25_by_county(county):
+    try:
+        open_db()
+        sqlstr = """
+        select site,pm25,datacreationdate from pm25
+        where county=%s and 
+        datacreationdate=(select max(datacreationdate) from pm25);
+        """
+        cursor.execute(sqlstr, (county,))
+        # cursor.execute(sqlstr, (max_data,))
+        datas = cursor.fetchall()
+        # 去掉 id 當使用 (select * from pm25)時
+        # datas = [data[1:0] for data in datas]
+
         return datas
     except Exception as e:
         print("雲端資料庫擷取失敗", e)
@@ -138,8 +169,11 @@ def get_from_mysql():  # 8/27 2:18:00  2:45:00
         close_db()
     return None
 
-if __name__=="__main__":
-# print(get_from_mysql())
-# write_data_to_mysql()
-# print(get_opendata())
-    print(get_avg_from_mysql())
+
+if __name__ == "__main__":
+    print(get_from_mysql())
+    # 寫入資瞭庫
+    # write_to_mysql()
+    # print(get_avg_pm25_mysql())
+    # print(get_pm25_by_county("臺中市"))
+    # print(get_opendata())
