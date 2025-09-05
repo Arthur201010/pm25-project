@@ -134,7 +134,13 @@ def get_from_mysql():  # 8/27 2:18:00  2:45:00
         # 去掉 id 當使用 (select * from pm25)時
         # datas = [data[1:0] for data in datas]
 
-        return datas
+        # 取得不重複縣市名稱  9/3 2:20:00
+        sqlstr = "select distinct county from pm25;"
+        cursor.execute(sqlstr)
+        # countys = cursor.fetchall()
+        countys = [r[0] for r in cursor.fetchall()]
+
+        return datas, countys
     except Exception as e:
         print("雲端資料庫擷取失敗", e)
     finally:
@@ -169,5 +175,5 @@ if __name__ == "__main__":
     # 寫入資瞭庫
     # write_to_mysql()
     # print(get_avg_pm25_mysql())
-    print(get_pm25_by_county("臺中市"))
+    # print(get_pm25_by_county("臺中市"))
     # print(get_opendata())

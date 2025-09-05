@@ -104,6 +104,7 @@
 </head>
 
 <body>
+    {{countys}}
     <h1>PM2.5數據列表</h1>
     <a href="/update-db">
         <h3>更新資料庫</h3>
@@ -114,9 +115,10 @@
     <div style="margin: 12px;">
         <label for="countySelect">選擇縣市</label>
         <select name="countySelect" id="countySelect">
-            <option value="新北市">新北市</option>
-            <option value="臺北市">臺北市</option>
-            <option value="桃園市">桃園市</option>
+            {% for county in countys %}
+            <option value={{ county}}>{{ county }}</option>
+            {% endfor %}
+
         </select>
         <button id="loadCounty" onclick="drawCountyChart()">確定</button>
     </div>
