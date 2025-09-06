@@ -13,7 +13,6 @@
 </head>
 
 <body>
-    {{countys}}
     <h1>PM2.5數據列表</h1>
     <a href="/update-db">
         <h3>更新資料庫</h3>
@@ -25,7 +24,7 @@
         <label for="countySelect">選擇縣市</label>
         <select name="countySelect" id="countySelect">
             {% for county in countys %}
-            <option value={{ county}}>{{ county }}</option>
+            <option value={{ county }}>{{ county }}</option>
             {% endfor %}
 
         </select>
@@ -76,17 +75,21 @@
             let county = countySelectEl.value;
             countyEl.hidden = false;
             console.log(county);
-            drawChart(chart2, `/county-pm25/${county}`, `${county}PM2.5`, "site", "pm25", "orange")
+            drawChart(chart2, `/county-pm25/${county}`, `${county}PM2.5數值`, "site", "pm25", "orange")
         }
 
         function drawChart(chart, url, title, xKey, yKey, color = "blue") {
-
+            chart.showLoading();
             $.ajax(
                 {
                     url: url,
                     type: "GET",
                     dataType: "json",
+                    error: () => {
+                        alert("讀取資料錯誤,請稍後再試!")
+                    },
                     success: (result) => {
+                        chart.hideLoading();
                         console.log(result)
                         // 指定图表的配置项和数据
                         var option = {
