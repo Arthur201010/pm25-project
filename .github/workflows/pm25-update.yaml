@@ -2,7 +2,7 @@ name: Update PM2.5 DB
 
 on:
   schedule:
-    - cron: '30 15 * * *'  # 每天 23:30 (台灣時間)
+    - cron: '10 16 * * *'  # 每天 23:30 (台灣時間)
   workflow_dispatch:       # 可手動執行
 
 jobs:
